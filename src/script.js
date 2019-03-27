@@ -22,10 +22,12 @@ const verseNavTop = document.getElementById("verseNavTop");
 const verseNavBottom = document.getElementById("verseNavBottom");
 const verseNavTemplate = verseNavTop.cloneNode(true);
 
+//const verseOptionTemplate = document.getElementById("verseOptionsRow");
 const verseOptionTemplate = document.querySelector(".verse-options");
 
 const searchTxt = document.getElementById("searchTxt");
 const searchBtn = document.getElementById("searchBtn");
+const searchClearBtn = document.getElementById("searchClearBtn");
 const searchResults = document.getElementById("searchResults");
 
 const groupView = document.getElementById("groupView");
@@ -52,15 +54,16 @@ let data = {
     'showEnglish2': false
   },
   'searchOptions': {
-    'showRomanized': false,
+    'showRomanized': true,
     'showJapanese': true,
     'showEnglish': true,
-    'showKanji': false,
+    'showKanji': true,
     'showEnglish2': false
   },
-  "isDataLoaded": false, // if this is false, the "localStorage" save should be prevented.
+  "isDataLoaded": false, // "localStorage" with default data is prevented.
 };
 let ofData = null;
+let keywords = null;
 let selectedVerse = null;
 
 function myParseInt(str) {
@@ -85,6 +88,10 @@ function initUi() {
   };
   searchTxt.value = data['searchStr'];
   searchBtn.onclick = function() { search(); };
+  searchClearBtn.onclick = function() {
+    searchTxt.value = "";
+    searchTxt.focus();
+  };
 }
 function search() {
   data['searchStr'] = searchTxt.value.trim();
@@ -101,6 +108,8 @@ function renderView() {
     displaySearchView();
   }
 }
+function VerseView() { }
+//VerseView.prototype.selectPart = function(part) { };
 function selectPart(part) {
   data['selectedPart'] = part;
   partSelect.value = data['selectedPart'];
@@ -256,6 +265,7 @@ function displaySearchView() {
   else {
     searchResults.innerHTML = "<p>Enter a search term.</p>";
   }
+  searchTxt.select();
 }
 function displayVerseGroupSelect() {
   let options = [];
@@ -310,12 +320,10 @@ function displayVerseByViewStr(verse, viewName, highlight) {
   highlight = highlight || false;
   if (verse) {
     const verseStr = verse['part'] + ":" + verse['verse']
-    const re = new RegExp(highlight, "i");
-    const replacement = '<span class="highlight">' + highlight + '</span>';
-    const ro = verse['ro'].split(/\s{2,}/g).join("<br/>").replace(re, replacement);
-    const kanji = verse['kanji'].split(/\s{2,}/g).join("<br/>").replace(re, replacement);
-    const english = verse['en_6th_ed'].replace(re, replacement);
-    const japanese = (verse['jp1'] + "<br/>" + verse['jp2']).replace(re, replacement);
+    const ro = highlightText(verse['ro'].split(/\s{2,}/g).join("<br/>"), highlight);
+    const kanji = highlightText(verse['kanji'].split(/\s{2,}/g).join("<br/>"), highlight);
+    const english = highlightText(verse['en_6th_ed'], highlight);
+    const japanese = highlightText(verse['jp1'] + "<br/>" + verse['jp2'], highlight);
     return '<div class="verse-display">' + (data[viewName + 'Options']['showRomanized'] ? "<blockquote>" + ro + "</blockquote>" : '')
       + (data[viewName + 'Options']['showJapanese'] ? "<blockquote>" + japanese + "</blockquote>" : '')
       + (data[viewName + 'Options']['showEnglish'] ?  "<blockquote>" + english + "</blockquote>" : '')
@@ -330,13 +338,21 @@ function displayVerseByViewStr(verse, viewName, highlight) {
   }
   return "Verse not found.";
 }
+function highlightText(str, search) {
+  if (!search) {
+    return str;
+  }
+  const re = new RegExp(search, "i");
+  const highlight = '<span class="highlight">' + str.match(re) + '</span>';
+  return str.replace(re, highlight);
+}
 function initViewOptions() {
   VIEWS.map(viewName => {
     //create show toggle tables
-    const optionsTable = verseOptionTemplate.cloneNode(true);
-    optionsTable.className = optionsTable.className.replace("verse-view", viewName + "-view");
-    const inputs = optionsTable.querySelectorAll("input");
-    const labels = optionsTable.querySelectorAll("label");
+    const optionsDiv = verseOptionTemplate.cloneNode(true);
+    const inputs = optionsDiv.querySelectorAll("input");
+    const labels = optionsDiv.querySelectorAll("label");
+    //optionsDiv.className = optionsDiv.className.replace("verse-view", viewName + "-view");
     for (let j = 0; j < inputs.length; j++) {
       const input = inputs[j];
       const id = input.id.replace("-verse", "-" + viewName);
@@ -348,12 +364,9 @@ function initViewOptions() {
     for (let j = 0; j < labels.length; j++) {
       labels[j].htmlFor = labels[j].htmlFor.replace("-verse", "-" + viewName);
     }
-    //create option
-    const td = document.createElement("td");
-    td.appendChild(optionsTable);
-    const optionsRow = document.getElementById(viewName + "OptionsRow");
-    optionsRow.innerHTML = "";
-    optionsRow.appendChild(td);
+    let viewOptionsDiv = document.getElementById(viewName + "OptionsRow");
+    viewOptionsDiv.innerHTML = "";
+    viewOptionsDiv.appendChild(optionsDiv);
 
     //configure menu links
     const menuLink = document.getElementById(viewName + "ViewMenuItem")
@@ -398,17 +411,25 @@ function displayData() {
 }
 window.onload = function() {
   loadData();
-  initJsonData();
-  initViewOptions();
-}
-window.addEventListener("beforeunload", function (e) {
-  alert("beforeunload");
+  makeRequest('ofudesaki.json').then(function (request) {
+    ofData = JSON.parse(request.responseText);
+    return makeRequest('keywords.json');
+  })
+  .then(function (request) {
+    keywords = JSON.parse(request.responseText);
+    displayData();
+    initUi();
+    initViewOptions();
+  })
+  .catch(function (error) { console.log('Something went wrong.', error); });
+};
+window.onunload = function() {
   saveData();
-});
-window.addEventListener('unload', function(e) {
-  alert("unload");
-  saveData();
-});
+};
+/*
+window.addEventListener("beforeunload", function (e) { saveData(); });
+window.addEventListener('unload', function(e) { saveData(); });
+*/
 function loadData() {
   const localData = window.localStorage.getItem(APP_DATA_KEY);
   if (localData) {
@@ -420,49 +441,35 @@ function loadData() {
   }
 }
 function saveData() {
+  //this prevents refreshing sequentially too fast from overwriting your saved data.
   if (data['isDataLoaded']) {
     window.localStorage.setItem(APP_DATA_KEY, JSON.stringify(data));
   }
 }
-function clearData() {
-  window.localStorage.setItem(APP_DATA_KEY, "");
-}
-function initJsonData() {
-  const filePath = './ofudesaki.json';
+const makeRequest = function (url, method) {
   var request = new XMLHttpRequest();
-  request.open('GET', filePath, true);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      // Success!
-      ofData = JSON.parse(request.responseText);
-      if (!ofData) {
-        alert('"' + filePath + '" not loaded');
+  return new Promise(function (resolve, reject) {
+    // Setup our listener to process compeleted requests
+    request.onreadystatechange = function () {
+      // Only run if the request is complete
+      if (request.readyState !== 4) return;
+      // Process the response
+      if (request.status >= 200 && request.status < 300) {
+        // If successful
+        resolve(request);
+      } else {
+        // If failed
+        reject({
+          status: request.status,
+          statusText: request.statusText
+        });
       }
-      displayData();
-      initUi();
-    } else {
-      alert('"' + filePath + '" could not be retreived.');
-    }
-  };
-  request.onerror = function() {
-    alert('"' + filePath + '" could not be retreived.');
-  };
-  request.send();
-  /*
-  window.fetch(filePath)
-    .then(response => {
-      return response.json();
-    })
-    .then(myJson => {
-      ofData = myJson;
-      if (!ofData) {
-        alert('"' + filePath + '" not loaded');
-      }
-      displayData();
-      initUi();
-    })
-  ;*/
-}
+    };
+    request.open(method || 'GET', url, true);
+    // Send the request
+    request.send();
+  });
+};
 function toggleClass(elem, className) {
   let classes = elem.className.split(/\s+/);
   let length = classes.length;
@@ -495,10 +502,10 @@ function toggleClass(elem, className) {
   menuLink.onclick = function (e) {
     toggleAll(e);
   };
-  // content.onclick = function (e) {
-  //   if (menu.className.indexOf('active') !== -1) {
-  //     toggleAll(e);
-  //   }
-  // };
+  content.onclick = function (e) {
+    if (menu.className.indexOf('active') !== -1) {
+      toggleAll(e);
+    }
+  };
 }
 (window, window.document));

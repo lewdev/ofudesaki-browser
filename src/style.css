@@ -1,3 +1,7 @@
+.analysis-menu > div > button {
+  width: 100%;
+  margin-bottom: 1em;
+}
 
 .footer > .search-view {
   color: black;
@@ -6,13 +10,41 @@
   display: inline-block;
 }
 
+.of-bottom-menu {
+  text-align: center;
+}
+.of-bottom-menu > ul {
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+.of-bottom-menu > ul > li {
+  display: inline-block;
+
+}
+.of-bottom-menu > ul > li > a {
+  padding: .2em .5em;
+  text-align: center;
+  display: block;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 1s ease;
+}
+.of-bottom-menu > ul > li > a > i {
+  display: block;
+  font-size: 1.5em;
+}
+
 /* Increases the size of checkboxes */
 @supports (zoom:2) {
   input[type="radio"], input[type=checkbox] { zoom: 2; }
   select { zoom: 2; }
 }
+input[type="radio"],  input[type=checkbox] {
+  width: 1.5em;
+}
 @supports not (zoom:2) {
-  input[type="radio"],  input[type=checkbox]{
+  input[type="radio"],  input[type=checkbox] {
     transform: scale(2);
     margin: 15px;
   }
@@ -34,7 +66,7 @@
 .highlight {
   background-color: yellow;
 }
-.keyword {
+.word {
   background-color: #CCC;
   margin: 3px;
   padding: 3px;
@@ -46,21 +78,9 @@
 .align-center {
   text-align: center;
 }
-.tr-control-panel > tbody > tr > td:first-child {
-  padding-right: .5em;
-  width: 3em;
-}
-.tr-control-panel > tbody > tr > td[colspan] {
-  padding-right: 0;
-  text-align: center;
-}
 .verse-options {
   margin-left: 1em;
   margin-top: .5em;
-}
-.verse-options > tbody > tr > td {
-  text-align: left;
-  padding-bottom: 8px;
 }
 .verse-options > tbody > tr > td:first-child {
   text-align: right;
@@ -172,12 +192,11 @@ h1,h2,h3,h4,h5,h6,label {
   color: #aaa;
   line-height: 3em;
   width: 3em;
-  font-size: 80%;
   text-align: center;
   text-decoration: none;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 5%;
+  right: 5%;
 }
 .modal-close:hover {
   text-decoration: none;
@@ -196,7 +215,7 @@ h1,h2,h3,h4,h5,h6,label {
 #layout {
   position: relative;
   padding-left: 0;
-  margin-bottom: 3em;
+  margin-bottom: 6em;
 }
   #layout.active #menu {
       left: 200px;
@@ -373,7 +392,7 @@ code {
   .menu-link {
       position: fixed;
       display: block; /* show this only on small screens */
-      top: 0;
+      top: 5px;
       left: 11px; /* "#menu width" */
       /* background: rgba(0,0,0,0.7); */
       font-size: 11px; /* change this value to increase/decrease button size */
@@ -642,7 +661,16 @@ a.pure-button-primary {
   }
 }
 
-@media (max-width: 38em) {
+@media (max-width: 25em) {
+  .of-bottom-menu > ul > li {
+    font-size: .8em;
+  }
+  .verse-display > blockquote {
+    margin-right: .2em;
+    margin-left: 1em;
+  }
+}
+@media (max-width: 30em) {
   /* Only apply this when the window is smaller. Otherwise, the following
   case results in extra padding on the left:
       * Make the window small. (Rotate to portrait on a mobile.)
@@ -656,27 +684,26 @@ a.pure-button-primary {
   .pure-menu-item span {
     display: none;
   }
-  .home-menu a.pure-menu-heading {
-    font-size: 90%;
-  }
 }
 
 @media (min-width: 38em) {
-
+  .of-bottom-menu > ul > li {
+    margin: 0 1em;
+  }
   #layout {
-      padding-left: 200px; /* left col width "#menu" */
-      left: 0;
+    padding-left: 200px; /* left col width "#menu" */
+    left: 0;
   }
   #menu {
-      left: 200px;
+    left: 200px;
   }
   .menu-link {
-      position: fixed;
-      left: 200px;
-      display: none;
+    position: fixed;
+    left: 200px;
+    display: none;
   }
   #layout.active .menu-link {
-      left: 200px;
+    left: 200px;
   }
 }
 

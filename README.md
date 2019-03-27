@@ -1,22 +1,27 @@
 # Ofudesaki Browser
 A Ofudesaki おふでさき study tool. https://lewdev.github.io/ofudesaki-browser
 
+# Completed updates
+* Move menu buttons on top to bottom of screen.
+
 # Next Features
-Usibility updates, favorites, keywords, notes, android and ios versions.
+* Convert navigation to use CSS only.
+* Create verse links to "Browse" view.
+* Favorites: View the list of favorited verses.
+* Keywords: Detect and display keywords when viewing each verse in "Browse" view.
+  * Clicking on it will highlight the corresponding Japanese, kanji, romanized, and English.
+  * Another button next  to find all verses with the same keyword. This will use the "Search" page.
+    * i.e. In the search bar: "kw:God of Origin" or "keyword:God of Origin"
+* Tags: Replacing "in Doctrine" and "in Life of Oyasama", use the search bar to find tagged verses.
+  * Other tags: "Mental Dusts"
+* Search History: track search history and also auto-complete tags or keywords.
+* Keyboard Navigation: Navigate: next, previous. Switch between views.
 
-## Usability updates
-* move search bar to bottom
-* move menu buttons on top to bottom of screen
-* use keyboard to navigate prev/next and each menu
+# After development
+Deployment to iOS and Android platforms. Web-based version will also be offered.
 
-## Favorites (bookmark favorite verses)
-* View the list of favorited verses.
-* Button to "favorite" a verse.
-
-## Keywords (view all words and how often they appear)
-* determine set of keywords and phrases that appear on Ofudesaki
-* create database that matches English, romanized, and Kanji correlation.
-* detect and display these words when viewing each verse.
-
-## Notes (low priority)
-* add personal study notes to verses.
+# Nice to have features
+* Info pages: View pages with information. i.e. Parts have information about each.
+* Parts timeline
+* Keyboard Navigation: use keyboard to navigate prev/next and each menu
+* Notes: add personal study notes to verses.
