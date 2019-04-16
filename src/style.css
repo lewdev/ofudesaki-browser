@@ -16,19 +16,28 @@
 .of-bottom-menu > ul {
   margin: 0;
   padding: 0;
-  white-space: nowrap;
+  display: flex;
+  flex-direction: row;
 }
 .of-bottom-menu > ul > li {
   display: inline-block;
-
+  width: 100%;
 }
 .of-bottom-menu > ul > li > a {
   padding: .2em .5em;
   text-align: center;
+  width: 100%;
+  min-width: 80px;
   display: block;
   text-decoration: none;
   white-space: nowrap;
-  transition: all 1s ease;
+}
+.of-bottom-menu > ul > li > a:focus, .of-bottom-menu > ul > li > a:target {
+  background-color: transparent;
+  color: black;
+}
+.of-bottom-menu > ul > li > a:hover{
+  background-color: #CCC;
 }
 .of-bottom-menu > ul > li > a > i {
   display: block;

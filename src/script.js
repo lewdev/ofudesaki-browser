@@ -446,6 +446,11 @@ function saveData() {
     window.localStorage.setItem(APP_DATA_KEY, JSON.stringify(data));
   }
 }
+/**
+ * Promise-based XMLHttpRequest method.
+ * @param {string} url Expected location of REST URL.
+ * @param {string} method Possible values: GET, POST, PUT
+ */
 const makeRequest = function (url, method) {
   var request = new XMLHttpRequest();
   return new Promise(function (resolve, reject) {
@@ -457,7 +462,8 @@ const makeRequest = function (url, method) {
       if (request.status >= 200 && request.status < 300) {
         // If successful
         resolve(request);
-      } else {
+      }
+      else {
         // If failed
         reject({
           status: request.status,
@@ -466,7 +472,6 @@ const makeRequest = function (url, method) {
       }
     };
     request.open(method || 'GET', url, true);
-    // Send the request
     request.send();
   });
 };
