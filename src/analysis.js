@@ -196,7 +196,7 @@ function getByVersePart(versePart) {
       }
     }
   }
-  return null;  
+  return null;
 }
 function initJsonData() {
   fetch('ofudesaki.json')

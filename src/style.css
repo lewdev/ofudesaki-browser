@@ -32,10 +32,12 @@
   text-decoration: none;
   white-space: nowrap;
 }
+/*
 .of-bottom-menu > ul > li > a:focus, .of-bottom-menu > ul > li > a:target {
   background-color: transparent;
   color: black;
 }
+*/
 .of-bottom-menu > ul > li > a:hover{
   background-color: #CCC;
 }
@@ -410,7 +412,7 @@ code {
       height: 4.5em;
       padding: 1.25em;
   }
-/* 
+/*
       .menu-link:hover,
       .menu-link:focus {
           background: #000;
@@ -817,7 +819,7 @@ a.pure-button-primary {
  * -- TABLET (AND UP) MEDIA QUERIES --
  * On tablets and other medium-sized devices, we want to customize some
  * of the mobile styles.
- 
+
  min-width: 800px (wide or more)
  */
 

@@ -10,7 +10,7 @@
     <delete dir="./public" />
     <delete dir="./www" />
   </target>
-  
+
   <target name="init">
     <mkdir dir="./public" />
     <mkdir dir="./www" />
@@ -57,12 +57,12 @@
     </exec>
   </target>
 
-  <target name="build-cordova" depends="build-clean, cordova" />
+  <target name="build-cordova" depends="build-clean" />
+  <target name="cordova" />
 
-  <target name="cordova">
-    <copy todir="./www">
-      <fileset dir="./public"/>
-    </copy>
-    <zip destfile="./${ant.project.name}.zip" basedir="." includes="www/**,config.xml" />
+  <target name="install-compilers">
+    <exec dir="." executable="cmd" >
+      <arg line="/c npm i -g html-minifier clean-css npx google-closure-compiler"/>
+    </exec>
   </target>
 </project>
