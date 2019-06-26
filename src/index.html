@@ -27,11 +27,6 @@
 
   <!-- Stylesheets  -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:200">
-  <!--
-  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
-    integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-  -->
   <link rel="stylesheet" href="css/fontawesome-v5.7.2.css" crossorigin="anonymous">
   <link rel="stylesheet" href="css/pure-min.css">
   <link rel="stylesheet" href="style.css">
@@ -92,6 +87,17 @@
     <!-- Search View Controls -->
     <div class="search-view">Search Options</div>
     <div id="searchOptionsRow" class="search-view"></div>
+
+    <div class="favorites-view">Favorites Options</div>
+    <div id="favoritesOptionsRow" class="favorites-view"></div>
+
+    <div id="config">
+      <div>Configuration</div>
+      <div class="pure-g full-width">
+        <div class="pure-u-1-4"><input id="hideButtonLabelCbx" type="checkbox" /></div>
+        <div class="pure-u-3-4"><label for="hideButtonLabelCbx">Hide Menu Labels</label></div>
+      </div>
+    </div>
   </div>
 
   <div id="main" class="content">
@@ -124,6 +130,11 @@
         </tbody></table>
       </div>
       <div id="searchResults" class="pure-u-1"></div>
+    </div>
+
+    <div id="favoritesView" class="full-width">
+      <div id="bookmarkDisplay" class="full-width"></div>
+      <div id="favoritesDisplay" class="full-width"></div>
     </div>
   </div>
 </div>
@@ -192,7 +203,10 @@
       <li><a href="#" id="verseViewMenuItem" title="Browse"><i class="fas fa-eye"></i> <span>Browse</span></a></li>
       <li><a href="#" id="groupViewMenuItem" title="Read View"><i class="fab fa-readme"></i> <span>Read</span></a></li>
       <li><a href="#" id="searchViewMenuItem" title="Search View"><i class="fas fa-search"></i> <span>Search</span></a></li>
-      <li><a href="analysis.html" title="Analysis"><i class="fas fa-list-alt"></i> <span>Analysis</span></a></li>
+      <li><a href="#" id="favoritesViewMenuItem" title="Favorites View"><i class="fas fa-star"></i> <span>Favorites</span></a></li>
+      <!--
+        <li><a href="analysis.html" title="Analysis"><i class="fas fa-list-alt"></i> <span>Analysis</span></a></li>
+      -->
     </ul>
   </div>
   <div id="verseNavBottom" class="verse-nav-footer pure-g"></div>

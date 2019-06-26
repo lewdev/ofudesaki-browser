@@ -24,6 +24,12 @@
 
   <target name="compile" depends="init, compile-index, compile-analysis"/>
 
+  <target name="genkey">
+    <exec dir="." executable="cmd" >
+      <arg line="/c keytool -genkey -alias ofudesaki-browser -keyalg RSA -keypass AllTerrainScoutTransport -storepass AllTerrainScoutTransport -keystore keytool.keystore"/>
+    </exec>
+  </target>
+
   <target name="compile-index">
     <exec dir="." executable="cmd" >
       <arg line="/c html-minifier"/>
@@ -57,7 +63,18 @@
     </exec>
   </target>
 
-  <target name="build-cordova" depends="build-clean" />
+  <target name="phonegap" depends="build-clean">
+    <copy todir="./www"> <!-- overwrite="true" -->
+      <fileset dir="./public"/>
+    </copy>
+  </target>
+
+  <target name="zipBuild">
+    <zip destfile="ofudesaki-browser.zip">
+      <zipfileset dir="./" includes="www/** config.xml" />
+    </zip>
+  </target>
+
   <target name="cordova" />
 
   <target name="install-compilers">

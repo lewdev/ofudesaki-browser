@@ -2,7 +2,7 @@
 <widget id="com.lewisnakao.ofudesakibrowser" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>Ofudesaki Browser</name>
   <description>
-  The Ofudesaki Browser is an application that allows people to study the Ofudesaki おふでさき (The Tip of the Writing Brush), using the "Browse" feature (allows users to view verses one at a time), "Read" feature (allows uses to view the standard verse groups), and "Search" feature (allows users to search perform a text search over the English transation, Romanized, Japanese, and Kanji verses).
+  The Ofudesaki Browser is an application that allows people to study the Tenrikyo Ofudesaki おふでさき (The Tip of the Writing Brush), using the "Browse" feature (allows users to view verses one at a time), "Read" feature (allows uses to view the standard verse groups), and "Search" feature (allows users to search perform a text search over the English transation, Romanized, Japanese, and Kanji verses).
   </description>
   <author email="lewdev@gmail.com" href="http://lewdev.github.io">Lewis Nakao</author>
   <icon density="mdpi" src="www/img/ofudesaki-browser.png" width="200" height="200"/>

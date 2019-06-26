@@ -1,17 +1,55 @@
+.of-tag {
+  background-color: #CCC;
+  border-radius: .25em;
+  color: #777;
+  font-size: 11px;
+  padding: .4em;
+}
+#layout.active #menu {
+  padding-top: .5em;
+  top: 4em;
+}
+.btn {
+  background-color: transparent;
+  border: none;
+  margin-left: .3em;
+  color: #2caaff;
+  font-size: 18px;
+}
+.btn:first-child {
+  margin-left: 0;
+}
+.btn.circle {
+  padding: 0.3em .5em;
+  border-radius: 2em;
+  background-color: #CCC;
+}
 .analysis-menu > div > button {
   width: 100%;
   margin-bottom: 1em;
 }
-
+.of-verse-controls {
+  width: 100%;
+}
+.of-verse-controls > tbody > tr > td {
+  text-align: right;
+  width: 25%;
+  white-space: nowrap;
+}
+.of-verse-controls > tbody > tr > td:first-child {
+  text-align: left;
+}
 .footer > .search-view {
   color: black;
 }
 .footer > .search-view > div{
   display: inline-block;
 }
-
 .of-bottom-menu {
   text-align: center;
+}
+.of-bottom-menu.of-hide-labels > ul > li > a > span {
+  display: none;
 }
 .of-bottom-menu > ul {
   margin: 0;
@@ -31,15 +69,14 @@
   display: block;
   text-decoration: none;
   white-space: nowrap;
+  transition: none;
 }
-/*
-.of-bottom-menu > ul > li > a:focus, .of-bottom-menu > ul > li > a:target {
-  background-color: transparent;
-  color: black;
+.of-bottom-menu > ul > li > a:hover {
+  background-color: none;
 }
-*/
-.of-bottom-menu > ul > li > a:hover{
-  background-color: #CCC;
+.of-bottom-menu > ul > li > a.selected {
+  background-color: #333;
+  color: white;
 }
 .of-bottom-menu > ul > li > a > i {
   display: block;
@@ -228,10 +265,10 @@ h1,h2,h3,h4,h5,h6,label {
   padding-left: 0;
   margin-bottom: 6em;
 }
-  #layout.active #menu {
-      left: 200px;
-      width: 200px;
-  }
+#layout.active #menu {
+  left: 200px;
+  width: 200px;
+}
 
 
 
@@ -770,7 +807,7 @@ a.pure-button-primary {
 .content-wrapper {
   /* These styles are required for the "scroll-over" effect */
   position: absolute;
-  top: 3.3em;
+  top: 2.5em;
   width: 100%;
   min-height: 12%;
   z-index: 2;

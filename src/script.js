@@ -1,13 +1,16 @@
 const APP_DATA_KEY = "ofudesaki-browser";
+const FAV_DATA_KEY = "ofudesaki-browser-favorites";
 
-const VIEWS = ["verse", "group", "search"];
+const VIEWS = ["verse", "group", "search", "favorites"];
 const LANGUAGES = ["Romanized", "Japanese", "English", "Portuguese", "Kanji"];
 const VERSE_VIEW = "verse";
 const READ_VIEW = "group";
 const SEARCH_VIEW = "search";
+const FAVORITES_VIEW = "favorites";
 const VERSE_VIEW_INDEX = VIEWS.indexOf(VERSE_VIEW);
 const READ_VIEW_INDEX = VIEWS.indexOf(READ_VIEW);
 const SEARCH_VIEW_INDEX = VIEWS.indexOf(SEARCH_VIEW);
+const FAVORITES_VIEW_INDEX = VIEWS.indexOf(FAVORITES_VIEW);
 const LAST_VERSE_GROUP_PART = 17;
 const PART_COUNT = 18;
 
@@ -32,6 +35,9 @@ const searchClearBtn = document.getElementById("searchClearBtn");
 const searchResults = document.getElementById("searchResults");
 
 const groupView = document.getElementById("groupView");
+const favoritesView = document.getElementById("favoritesView");
+
+const hideButtonLabelCbx = document.getElementById("hideButtonLabelCbx");
 
 let count = 0;
 let data = {
@@ -40,19 +46,20 @@ let data = {
   'selectedVerse': 1,
   'selectedVerseGroup': "1:1-20",
   'searchStr': "",
+  'hideButtonLabel': false,
   'verseOptions': {
     'showRomanized': true,
     'showJapanese': true,
     'showEnglish': true,
-    'showPortuguese': false,
+    'showPortuguese': true,
     'showKanji': true,
     'showEnglish2': false
   },
   'groupOptions': {
     'showRomanized': true,
     'showJapanese': true,
-    'showEnglish': false,
-    'showPortuguese': false,
+    'showEnglish': true,
+    'showPortuguese': true,
     'showKanji': false,
     'showEnglish2': false
   },
@@ -60,11 +67,23 @@ let data = {
     'showRomanized': true,
     'showJapanese': true,
     'showEnglish': true,
-    'showPortuguese': false,
+    'showPortuguese': true,
+    'showKanji': true,
+    'showEnglish2': false
+  },
+  'favoritesOptions': {
+    'showRomanized': true,
+    'showJapanese': true,
+    'showEnglish': true,
+    'showPortuguese': true,
     'showKanji': true,
     'showEnglish2': false
   },
   "isDataLoaded": false, // "localStorage" with default data is prevented.
+};
+let favoritesData = {
+  'favorites': [],
+  'bookmark': 0
 };
 let ofData = null;
 let keywords = null;
@@ -88,10 +107,8 @@ function initUi() {
     displayReadView();
   };
   selectVerseGroup(data['selectedVerseGroup']);
-
   selectPart(data['selectedPart']);
-  verseSelect.value = data['selectedVerse'];
-  //selectVerse(data['selectedVerse']);
+  selectVerse(data['selectedVerse']);
   displayView(data['view']);
   searchTxt.onkeyup = function(e) {
     if (e.keyCode === 13) { search(); }
@@ -101,6 +118,28 @@ function initUi() {
   searchClearBtn.onclick = function() {
     searchTxt.value = "";
     searchTxt.focus();
+  };
+  initMenuLabels();
+}
+function initMenuLabels() {
+  const menuDiv = document.querySelector(".of-bottom-menu");
+  if (data['hideButtonLabel']) {
+    addClassName(menuDiv, 'of-hide-labels');
+  }
+  hideButtonLabelCbx.checked = data['hideButtonLabel'];
+  hideButtonLabelCbx.onclick = function() {
+    const optionFlag = data['hideButtonLabel'];
+    if (optionFlag === 'undefined') {
+      optionFlag = false;
+    }
+    data['hideButtonLabel'] = !optionFlag;
+    this.checked = !optionFlag;
+    if (!optionFlag) {
+      addClassName(menuDiv, 'of-hide-labels');
+    }
+    else {
+      removeClassName(menuDiv, 'of-hide-labels');
+    }
   };
 }
 function search() {
@@ -117,24 +156,22 @@ function renderView() {
   else if (data['view'] === SEARCH_VIEW_INDEX) {
     displaySearchView();
   }
+  else if (data['view'] === FAVORITES_VIEW_INDEX) {
+    displayFavoritesView();
+  }
 }
 function selectPart(part) {
   data['selectedPart'] = part;
   partSelect.value = data['selectedPart'];
-  //data['selectedVerse'] = 1;
   displayVerseSelect(part);
-  //displayVerseView();
 }
 function selectVerse(verseNum) {
-  console.log("selectVerse(verseNum) verseNum=" + verseNum);
   data['selectedVerse'] = verseNum;
   verseSelect.value = data['selectedVerse'];
-  //displayVerseView();
 }
 function selectVerseGroup(verseGroupStr) {
   data['selectedVerseGroup'] = verseGroupStr;
   verseGroupSelect.value = data['selectedVerseGroup'];
-  //displayReadView();
 }
 function getById(id) {
   let size = ofData['verses'].length;
@@ -157,6 +194,7 @@ function getByPartAndVerse(partNum, verseNum) {
   return null;
 }
 function displayView(viewCode) {
+  data['view'] = viewCode;
   //hide other views
   VIEWS.map(viewName => {
     const viewDiv = document.getElementById(viewName + "View");
@@ -167,6 +205,11 @@ function displayView(viewCode) {
     for (let i = 0; i < viewDivs.length; i++) {
       viewDivs[i].style.display = "none";
     }
+    const menuItem = document.getElementById(viewName + "ViewMenuItem");
+    if (!menuItem) {
+      console.log(viewName + "ViewMenuItem not found.");
+    }
+    removeClassName(menuItem, "selected");
   })
   const viewName = VIEWS[viewCode];
   const viewDiv = document.getElementById(viewName + "View");
@@ -175,6 +218,8 @@ function displayView(viewCode) {
   for (let i = 0; i < viewElems.length; i++) {
     viewElems[i].style.display = "block";
   }
+  const menuItem = document.querySelector("#" + viewName + "ViewMenuItem");
+  addClassName(menuItem, "selected");
   //hide footer when in search view
   const isSearchView = viewCode === SEARCH_VIEW_INDEX;
   verseNavTop.style.display = isSearchView ? 'none' : 'block';
@@ -190,31 +235,107 @@ function displayVerseView() {
     const verseStr = "Verse " + selectedVerse['part'] + ":" + selectedVerse['verse']
     displayVerseNavBtns(verseStr);
     verseDisplay.innerHTML = displayVerseByViewStr(selectedVerse, VERSE_VIEW, null);
+    applyVerseControls(verseDisplay, selectedVerse);
   }
   else {
     verseDisplay.innerHTML = "Verse " + partNum + ":" + verseNum + " not found!";
   }
 }
-function displayReadView() {
-  const partVerseGroupArr = data['selectedVerseGroup'].split(":");
+function applyVerseControls(verseDisplay, selectedVerse) {
+  if (!verseDisplay || !selectedVerse) {
+    return;
+  }
+  console.log("verseDisplay found");
+  const verseBtn = verseDisplay.querySelector(".verse-btn");
+  const readBtn = verseDisplay.querySelector(".read-btn");
+  const favoriteBtn = verseDisplay.querySelector(".favorite-btn");
+  const bookmarkBtn = verseDisplay.querySelector(".bookmark-btn");
+
+  let part = selectedVerse['part'];
+  let verse = selectedVerse['verse'];
+  if (verseBtn) {
+    verseBtn.onclick = function() {
+      console.log("verseBtn onclick part=" + part + ", verse=" + verse);
+      selectPart(part);
+      selectVerse(verse);
+      displayView(VERSE_VIEW_INDEX);
+    };
+  }
+  if (readBtn) {
+    const verseGroup = getVerseGroupByPartVerse(part, verse);
+    readBtn.onclick = function() {
+      console.log("readBtn onclick");
+      selectVerseGroup(verseGroup);
+      displayView(READ_VIEW_INDEX);
+      window.location.hash = "verse" + part + "-" + verse;
+      console.log(part + ":" + verse);
+    };
+  }
+  favoriteBtn.onclick = function() {
+    //TODO
+  };
+  bookmarkBtn.onclick = function() {
+    //TODO
+  };
+}
+function getVerseGroupByPartVerse(part, verse) {
+  if (!part || !verse) {
+    console.log("ERROR: getVerseGroupByPartVerse parameters (part, verse) are not valid.")
+    return;
+  }
+  const groups = ofData['verseGroups'][part - 1]['groups'];
+  if (groups) {
+    for (let i = 0; i < groups.length; i++) {
+      const verseGroupStr = groups[i];
+      const verseStrArr = verseGroupStr.split("-");
+      const startVerse = parseInt(verseStrArr[0]);
+      const endVerse = parseInt(verseStrArr[1]);
+      if (verse >= startVerse && verse <= endVerse) {
+        return part + ":" + verseGroupStr;
+      }
+    }
+  }
+  console.log("ERROR: getVerseGroupByPartVerse parameters (" + part + ", " + verse + ") not found.")
+  return null;
+}
+function parseVerseGroup(partVerseGroupStr) {
+  if (!partVerseGroupStr) {
+    return null;
+  }
+  const partVerseGroupArr = partVerseGroupStr.split(":");
   const partNum = myParseInt(partVerseGroupArr[0]);
   const verseGroupStr = partVerseGroupArr[1];
   const verseGroupArr = verseGroupStr.split("-");
   const startVerseNum = myParseInt(verseGroupArr[0]);
   const endVerseNum = myParseInt(verseGroupArr[1]);
-  let outputArr = [];
-  for (let verseNum = startVerseNum; verseNum <= endVerseNum; verseNum++) {
-    const verse = getByPartAndVerse(partNum, verseNum);
-    outputArr.push(displayVerseByViewStr(verse, READ_VIEW, null));
+  return {
+    part: partNum,
+    startVerse: startVerseNum,
+    endVerse: endVerseNum,
+    verseGroup: verseGroupStr //i.e. 1-21
   }
-  groupView.innerHTML = outputArr.join("");
-  //TODO
-  displayReadNavBtns(partNum, verseGroupStr);
+}
+function displayReadView() {
+  const partVerseGroupStr = data['selectedVerseGroup'];
+  const verseGroup = parseVerseGroup(partVerseGroupStr);
+  if (verseGroup) {
+    groupView.innerHTML = "";
+    for (let verseNum = verseGroup.startVerse; verseNum <= verseGroup.endVerse; verseNum++) {
+      const verse = getByPartAndVerse(verseGroup.part, verseNum);
+      const elem = document.createElement("div");
+      elem.innerHTML = displayVerseByViewStr(verse, READ_VIEW, null);
+      applyVerseControls(elem, verse);
+      groupView.appendChild(elem);
+    }
+    displayReadNavBtns(verseGroup.part, verseGroup.verseGroup);
+  }
 }
 function displayReadNavBtns(partNum, verseGroupStr) {
+  console.log("displayReadNavBtns verseGroupStr=" + verseGroupStr);
   let prevVerseGroupStr = "";
   let nextVerseGroupStr = "";
   const verseGroup = ofData['verseGroups'][partNum - 1];
+  console.log('verseGroup=' + verseGroup['groups']);
   const size = verseGroup['groups'].length;
   for (let j = 0; j < size; j++) {
     const group = verseGroup['groups'][j];
@@ -250,18 +371,25 @@ function displayReadNavBtns(partNum, verseGroupStr) {
       }
     }
   }
-  //console.log("prevVerseGroupStr=" + prevVerseGroupStr + ", nextVerseGroupStr=" + nextVerseGroupStr);
+  console.log("prevVerseGroupStr=" + prevVerseGroupStr + ", nextVerseGroupStr=" + nextVerseGroupStr);
   displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr);
+}
+function displayFavoritesView() {
+  //favoritesView
+  //show bookmarked
+  //show favorites
 }
 function displaySearchView() {
   const searchStr = data['searchStr'];
   if (searchStr) {
     let count = 0;
-    let resultStrArr = [];
+    let resultDivArr = [];
     let size = ofData['verses'].length;
+    searchResults.innerHTML = "";
     for (let i = 0; i < size; i++) {
       const verse = ofData['verses'][i];
       const re = new RegExp(searchStr, 'i');
+      const elem = document.createElement("div");
       const searchBodyArr = [];
       if (data['searchOptions']['showRomanized']) { searchBodyArr.push(verse['ro']); }
       if (data['searchOptions']['showJapanese']) { searchBodyArr.push(verse['jp1'] + verse['jp2']); }
@@ -271,11 +399,17 @@ function displaySearchView() {
       const matchResult = (searchBodyArr.join(" ")).match(re);
       if (matchResult) {
         count++;
-        resultStrArr.push(displayVerseByViewStr(verse, SEARCH_VIEW, searchStr));
+        elem.innerHTML = displayVerseByViewStr(verse, SEARCH_VIEW, searchStr);
+        applyVerseControls(elem, verse);
+        resultDivArr.push(elem);
       }
     }
-    resultStrArr.unshift('<p>Search "' + searchStr + '" yields ' + count + ' results.</p>');
-    searchResults.innerHTML = resultStrArr.join("");
+    const yieldsDiv = document.createElement("div");
+    yieldsDiv.innerHTML = '<p>Search "' + searchStr + '" yields ' + count + ' results.</p>';
+    searchResults.appendChild(yieldsDiv);
+    for (let i = 0; i < resultDivArr.length; i++) {
+      searchResults.appendChild(resultDivArr[i]);
+    }
   }
   else {
     searchResults.innerHTML = "<p>Enter a search term.</p>";
@@ -297,12 +431,10 @@ function displayVerseGroupSelect() {
 function displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr) {
   const prevFunc = function() {
     selectVerseGroup(prevVerseGroupStr);
-    //data['selectedVerseGroup'] = prevVerseGroupStr;
     displayReadView();
   };
   const nextFunc = function() {
-    selectVerseGroup(prevVerseGroupStr);
-    //data['selectedVerseGroup'] = nextVerseGroupStr;
+    selectVerseGroup(nextVerseGroupStr);
     displayReadView();
   };
   setupNav(verseNavTop, data['selectedVerseGroup'], prevFunc, nextFunc);
@@ -338,22 +470,33 @@ function setupNav(versNav, middleStr, prevFunc, nextFunc) {
 function displayVerseByViewStr(verse, viewName, highlight) {
   highlight = highlight || false;
   if (verse) {
-    const verseStr = verse['part'] + ":" + verse['verse']
+    const verseStr = verse['part'] + ":" + verse['verse'];
     const ro = highlightText(verse['ro'].split(/\s{2,}/g).join("<br/>"), highlight);
     const kanji = highlightText(verse['kanji'].split(/\s{2,}/g).join("<br/>"), highlight);
     const english = highlightText(verse['en_6th_ed'], highlight);
     const pt = highlightText(verse['pt'], highlight);
     const japanese = highlightText(verse['jp1'] + "<br/>" + verse['jp2'], highlight);
-    return '<div class="verse-display">' + (data[viewName + 'Options']['showRomanized'] ? "<blockquote>" + ro + "</blockquote>" : '')
+    return '<div class="verse-display">'
+      + (data[viewName + 'Options']['showRomanized'] ? "<blockquote>" + ro + "</blockquote>" : '')
       + (data[viewName + 'Options']['showJapanese'] ? "<blockquote>" + japanese + "</blockquote>" : '')
       + (data[viewName + 'Options']['showEnglish'] ?  "<blockquote>" + english + "</blockquote>" : '')
       //+ (data[viewName + 'Options']['showEnglish2'] ?  "<blockquote>" + verse['en'] + "</blockquote>" : '')
       + (data[viewName + 'Options']['showPortuguese'] ?  "<blockquote>" + pt + "</blockquote>" : '')
       + (data[viewName + 'Options']['showKanji'] ? "<blockquote>" + kanji + "</blockquote>" : '')
-      + '<table class="full-width"><tbody><tr><td>'
-      + 'In Life of Oyasama?: ' + (verse['in_life_of_oyasama']  ? EM_HEAVY_CHECK : EM_CROSS_MARK)
-      + "In Doctrine?: " + (verse['in_doctrine']  ? EM_HEAVY_CHECK : EM_CROSS_MARK)
-      + "</td><td>" + verseStr + '</td></tr></tbody></table>'
+      + '<table class="of-verse-controls"><tbody><tr>'
+      + '<td>'
+      + '<button class="favorite-btn btn circle"><i class="fa fa-fw fa-star"></i></button>'
+      + '<button class="bookmark-btn btn circle"><i class="fa fa-fw fa-bookmark"></i></button>'
+      + '</td>'
+      + '<td>'
+      + (verse['in_life_of_oyasama']  ? '<span class="of-tag">Life of Oyasama</span>' : '')
+      +  (verse['in_doctrine']  ? '<span class="of-tag">Doctrine</span>' : '')
+      + "</td><td>" + verseStr + '</td>'
+      + '<td>'
+      + (viewName !== 'group' ? '<button class="read-btn btn circle"><i class="fab fa-fw fa-readme"></i></button>' : "")
+      + (viewName !== 'verse' ? '<button class="verse-btn btn circle"><i class="fa fa-fw fa-eye"></i></button>' : "")
+      + '</td>'
+      + '</tr></tbody></table>'
       + "</div>"
     ;
   }
@@ -370,6 +513,7 @@ function highlightText(str, search) {
 function initViewOptions() {
   VIEWS.map(viewName => {
     //create show toggle tables
+    console.log(viewName);
     const optionsDiv = verseOptionTemplate.cloneNode(true);
     const inputs = optionsDiv.querySelectorAll("input");
     const labels = optionsDiv.querySelectorAll("label");
@@ -392,19 +536,20 @@ function initViewOptions() {
     const menuLink = document.getElementById(viewName + "ViewMenuItem")
     menuLink.onclick = function() {
       const index = VIEWS.indexOf(viewName);
-      data['view'] = index;
       displayView(index);
     };
   });
+
 }
 function toggleOption(viewName, optionName) {
   const input = document.getElementById("show" + optionName + "Cbx-" + viewName);
   if (input) {
     const optionFlag = data[viewName + "Options"]["show" + optionName];
-    if (optionFlag !== 'undefined') {
-      data[viewName + "Options"]["show" + optionName] = !optionFlag;
-      input.checked = !optionFlag;
+    if (optionFlag === 'undefined') {
+      optionFlag = false;
     }
+    data[viewName + "Options"]["show" + optionName] = !optionFlag;
+    input.checked = !optionFlag;
   }
   renderView();
 }
@@ -434,20 +579,20 @@ function displayData() {
 }
 window.onload = function() {
   loadData().then(function() {
-    console.log("111 selectedVerse=" + data['selectedVerse']);
-    makeRequest('ofudesaki.json').then(function (request) {
-      ofData = JSON.parse(request.responseText);
-      return makeRequest('keywords.json');
-    })
-    .then(function (request) {
-      keywords = JSON.parse(request.responseText);
-      displayData();
-      initUi();
-      initViewOptions();
-      data['isDataLoaded'] = true;
-    })
-    .catch(function (error) { console.log('Something went wrong.', error); });
+    return makeRequest('ofudesaki.json');
   })
+  .then(function (request) {
+    ofData = JSON.parse(request.responseText);
+    return makeRequest('keywords.json');
+  })
+  .then(function (request) {
+    keywords = JSON.parse(request.responseText);
+    displayData();
+    initUi();
+    initViewOptions();
+    data['isDataLoaded'] = true;
+  })
+  .catch(function (error) { console.log('Something went wrong.', error); });
 };
 window.onunload = function() {
   saveData();
@@ -459,10 +604,19 @@ window.addEventListener("unload", function (e) { saveData(); });
 function loadData() {
   var promise = new Promise(function(resolve, reject) {
     const localData = window.localStorage.getItem(APP_DATA_KEY);
+    const localFavData = window.localStorage.getItem(FAV_DATA_KEY);
     if (localData) {
       const parsedData = JSON.parse(localData);
+      const parsedFavData = JSON.parse(localFavData);
       if (parsedData) {
         data = parsedData;
+        if (parsedFavData) {
+          favoritesData = parsedFavData;
+        }
+        else {
+          console.log("fav data not loaded.")
+        }
+        correctData();
         resolve("Data loaded from local storage.");
       }
       else {
@@ -476,6 +630,19 @@ function saveData() {
   //this prevents refreshing sequentially too fast from overwriting your saved data.
   if (data['isDataLoaded']) {
     window.localStorage.setItem(APP_DATA_KEY, JSON.stringify(data));
+    window.localStorage.setItem(FAVE_DATA_KEY, JSON.stringify(favoritesData));
+  }
+}
+function correctData() {
+  if (!data['favoritesOptions']) {
+    data['favoritesOptions'] = {
+      'showRomanized': true,
+      'showJapanese': true,
+      'showEnglish': true,
+      'showPortuguese': true,
+      'showKanji': true,
+      'showEnglish2': false
+    };
   }
 }
 /**
@@ -519,6 +686,22 @@ function toggleClass(elem, className) {
   if (length === classes.length) {//The className is not found
     classes.push(className);
   }
+  elem.className = classes.join(' ');
+}
+function removeClassName(elem, className) {
+  let classes = elem.className.split(/\s+/);
+  let length = classes.length;
+  for (let i = 0; i < length; i++) {
+    if (classes[i] === className) {
+      classes.splice(i, 1);
+      break;
+    }
+  }
+  elem.className = classes.join(' ');
+}
+function addClassName(elem, className) {
+  let classes = elem.className.split(/\s+/);
+  classes.push(className);
   elem.className = classes.join(' ');
 }
 

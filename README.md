@@ -5,7 +5,12 @@ A Ofudesaki おふでさき study tool. https://lewdev.github.io/ofudesaki-brows
 * Move menu buttons on top to bottom of screen.
 
 # Next Features
-* Convert navigation to use CSS only.
+* Remove all links
+* Have "web" and "mobile" versions of the "About" popup.
+-- remove links from the popup in mobile.
+* Fix issue with Analysis feature. Remove it.
+* Save local storage on data change. (onunload doesn't seem to work)
+
 * Create verse links to "Browse" view.
 * Favorites: View the list of favorited verses.
 * Keywords: Detect and display keywords when viewing each verse in "Browse" view.
