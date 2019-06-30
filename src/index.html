@@ -14,7 +14,6 @@
   <meta property="og:description"
   content="An application that allows people to study the Ofudesaki &#x304A;&#x3075;&#x3067;&#x3055;&#x304D; (The Tip of the Writing Brush).">
   <meta property="og:url" content="https://lewdev.github.io/ofudesaki-browser/">
-  <meta property="fb:app_id" content="190954067613391">
 
   <!-- Icon Info  -->
   <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
@@ -29,13 +28,10 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:200">
   <link rel="stylesheet" href="css/fontawesome-v5.7.2.css" crossorigin="anonymous">
   <link rel="stylesheet" href="css/pure-min.css">
+  <link rel="stylesheet" href="css/animate.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<div id="fb-root"></div><script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2&appId=1653802928255147&autoLogAppEvents=1"></script>
-
-
 <div class="header">
   <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
     <a href="#menu" id="menuLink" class="menu-link"><span></span></a>
@@ -154,50 +150,18 @@
       </ul>
     </p>
 
-    <div class="fb-share-button" data-href="http://lewdev.github.io/ofudesaki-browser/" data-layout="button_count" data-size="small"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flewdev.github.io%2Fofudesaki-browser%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
-
     <h3>Why?</h3>
     <p>Access to the Ofudesaki is limited, you need to own a copy of the Ofudesaki book and the "Kanji" version
     is not available. Also, with the "Search" tool, that wasn't available until now, anyone can look up
     a verse based on keywords that they had in mind.</p>
 
-    <h3>Author: Lewis Nakao</h3>
-    <p>Thank you for taking your time to view my app. I am a software engineer in Hawaii.</p>
-
-    <div class="pure-g">
-      <div class="pure-u-1-2">
-        <a href="https://drive.google.com/open?id=1neZuwiGy5SBrFOiJnbcvcx1Bb-LV8iPP" target="_blank">
-          <i class="fas fa-file-alt"></i> My resume (pdf)
-        </a>
-      </div>
-      <div class="pure-u-1-2">
-        <a href="https://www.linkedin.com/in/lewisnakao/" target="_blank">
-          <i class="fab fa-linkedin"></i> LinkedIn Profile
-        </a>
-      </div>
-      <div class="pure-u-1-2">
-        <a href="https://www.facebook.com/lewdev" target="_blank">
-          <i class="fab fa-facebook-square"></i> Facebook Profile
-        </a>
-      </div>
-      <div class="pure-u-1-2">
-        <a href="https://github.com/lewdev" target="_blank">
-          <i class="fab fa-github-square"></i> Github Profile
-        </a>
-      </div>
-    </div>
-    <p>Libraries Used:
-      <a href="https://developers.google.com/closure/compiler/">Google Closure Compiler</a>,
-      <a href="http://purecss.io">Pure.css</a>,
-      <a href="https://fontawesome.com/">Font Awesome v5.7</a>,
-      <a href="https://phonegap.com/">PhoneGap</a>,
-      <a href="https://codepen.io/timothylong/pen/HhAer/">CSS only Modal</a>
-    </p>
+    <a href="#" title="Close" class="modal-close">&#10006;</a>
   </div>
-  <a href="#" title="Close" class="modal-close">&#10006;</a>
 </div>
 
 <div class="footer">
+  <div id="verseNavBottom" class="verse-nav-footer pure-g"></div>
+
   <div class="of-bottom-menu">
     <ul>
       <li><a href="#" id="verseViewMenuItem" title="Browse"><i class="fas fa-eye"></i> <span>Browse</span></a></li>
@@ -209,8 +173,6 @@
       -->
     </ul>
   </div>
-  <div id="verseNavBottom" class="verse-nav-footer pure-g"></div>
-
 </div>
 
 <script src="script.js"></script>

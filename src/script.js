@@ -198,7 +198,7 @@ function displayView(viewCode) {
   //hide other views
   VIEWS.map(viewName => {
     const viewDiv = document.getElementById(viewName + "View");
-    if (viewDiv) {
+    if (viewDiv && viewDiv.style.display === "block") {
       viewDiv.style.display = "none";
     }
     const viewDivs = document.querySelectorAll("." + viewName + "-view");
@@ -213,8 +213,10 @@ function displayView(viewCode) {
   })
   const viewName = VIEWS[viewCode];
   const viewDiv = document.getElementById(viewName + "View");
-  viewDiv.style.display = "block";
   const viewElems = document.querySelectorAll("." + viewName + "-view");
+  viewDiv.style.display = "block";
+  viewDiv.classList.add('animated', 'fadeIn');
+  viewDiv.addEventListener('animationend', function() {  });
   for (let i = 0; i < viewElems.length; i++) {
     viewElems[i].style.display = "block";
   }
@@ -245,7 +247,6 @@ function applyVerseControls(verseDisplay, selectedVerse) {
   if (!verseDisplay || !selectedVerse) {
     return;
   }
-  console.log("verseDisplay found");
   const verseBtn = verseDisplay.querySelector(".verse-btn");
   const readBtn = verseDisplay.querySelector(".read-btn");
   const favoriteBtn = verseDisplay.querySelector(".favorite-btn");
@@ -255,7 +256,6 @@ function applyVerseControls(verseDisplay, selectedVerse) {
   let verse = selectedVerse['verse'];
   if (verseBtn) {
     verseBtn.onclick = function() {
-      console.log("verseBtn onclick part=" + part + ", verse=" + verse);
       selectPart(part);
       selectVerse(verse);
       displayView(VERSE_VIEW_INDEX);
@@ -264,11 +264,9 @@ function applyVerseControls(verseDisplay, selectedVerse) {
   if (readBtn) {
     const verseGroup = getVerseGroupByPartVerse(part, verse);
     readBtn.onclick = function() {
-      console.log("readBtn onclick");
       selectVerseGroup(verseGroup);
       displayView(READ_VIEW_INDEX);
       window.location.hash = "verse" + part + "-" + verse;
-      console.log(part + ":" + verse);
     };
   }
   favoriteBtn.onclick = function() {
@@ -331,11 +329,9 @@ function displayReadView() {
   }
 }
 function displayReadNavBtns(partNum, verseGroupStr) {
-  console.log("displayReadNavBtns verseGroupStr=" + verseGroupStr);
   let prevVerseGroupStr = "";
   let nextVerseGroupStr = "";
   const verseGroup = ofData['verseGroups'][partNum - 1];
-  console.log('verseGroup=' + verseGroup['groups']);
   const size = verseGroup['groups'].length;
   for (let j = 0; j < size; j++) {
     const group = verseGroup['groups'][j];
@@ -371,10 +367,10 @@ function displayReadNavBtns(partNum, verseGroupStr) {
       }
     }
   }
-  console.log("prevVerseGroupStr=" + prevVerseGroupStr + ", nextVerseGroupStr=" + nextVerseGroupStr);
   displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr);
 }
 function displayFavoritesView() {
+  //TODO
   //favoritesView
   //show bookmarked
   //show favorites
@@ -432,10 +428,20 @@ function displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr) {
   const prevFunc = function() {
     selectVerseGroup(prevVerseGroupStr);
     displayReadView();
+    groupView.className = "";
+    groupView.classList.add('animated', 'slideInRight');
+    groupView.addEventListener('animationend', function() {
+      groupView.className = "";
+    });
   };
   const nextFunc = function() {
     selectVerseGroup(nextVerseGroupStr);
     displayReadView();
+    groupView.className = "";
+    groupView.classList.add('animated', 'slideInLeft');
+    groupView.addEventListener('animationend', function() {
+      groupView.className = "";
+    });
   };
   setupNav(verseNavTop, data['selectedVerseGroup'], prevFunc, nextFunc);
   setupNav(verseNavBottom, data['selectedVerseGroup'], prevFunc, nextFunc);
@@ -513,7 +519,6 @@ function highlightText(str, search) {
 function initViewOptions() {
   VIEWS.map(viewName => {
     //create show toggle tables
-    console.log(viewName);
     const optionsDiv = verseOptionTemplate.cloneNode(true);
     const inputs = optionsDiv.querySelectorAll("input");
     const labels = optionsDiv.querySelectorAll("label");
@@ -607,22 +612,24 @@ function loadData() {
     const localFavData = window.localStorage.getItem(FAV_DATA_KEY);
     if (localData) {
       const parsedData = JSON.parse(localData);
-      const parsedFavData = JSON.parse(localFavData);
       if (parsedData) {
         data = parsedData;
-        if (parsedFavData) {
-          favoritesData = parsedFavData;
-        }
-        else {
-          console.log("fav data not loaded.")
-        }
         correctData();
-        resolve("Data loaded from local storage.");
       }
       else {
         reject(Error("Failed to load data from local storage."));
       }
     }
+    if (localFavData) {
+      const parsedFavData = JSON.parse(localFavData);
+      if (parsedFavData) {
+        favoritesData = parsedFavData;
+      }
+      else {
+        reject(Error("Failed to load fav data from local storage."));
+      }
+    }
+    resolve("Data loaded from local storage.");
   });
   return promise;
 }
@@ -630,7 +637,7 @@ function saveData() {
   //this prevents refreshing sequentially too fast from overwriting your saved data.
   if (data['isDataLoaded']) {
     window.localStorage.setItem(APP_DATA_KEY, JSON.stringify(data));
-    window.localStorage.setItem(FAVE_DATA_KEY, JSON.stringify(favoritesData));
+    window.localStorage.setItem(FAV_DATA_KEY, JSON.stringify(favoritesData));
   }
 }
 function correctData() {
