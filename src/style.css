@@ -1,3 +1,6 @@
+/* #verseView, #groupView, #searchView {
+  animation-duration: 300ms;
+} */
 .of-tag {
   background-color: #CCC;
   border-radius: .25em;

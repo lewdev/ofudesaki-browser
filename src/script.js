@@ -426,21 +426,27 @@ function displayVerseGroupSelect() {
 }
 function displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr) {
   const prevFunc = function() {
-    selectVerseGroup(prevVerseGroupStr);
-    displayReadView();
-    groupView.className = "";
-    groupView.classList.add('animated', 'slideInRight');
+    groupView.classList.add('animated', 'fadeOut');
     groupView.addEventListener('animationend', function() {
+      selectVerseGroup(prevVerseGroupStr);
+      displayReadView();
       groupView.className = "";
+      groupView.classList.add('animated', 'fadeIn');
+      groupView.addEventListener('animationend', function() {
+        groupView.className = "";
+      });
     });
   };
   const nextFunc = function() {
-    selectVerseGroup(nextVerseGroupStr);
-    displayReadView();
-    groupView.className = "";
-    groupView.classList.add('animated', 'slideInLeft');
+    groupView.classList.add('animated', 'slideOutLeft');
     groupView.addEventListener('animationend', function() {
+      selectVerseGroup(nextVerseGroupStr);
+      displayReadView();
       groupView.className = "";
+      groupView.classList.add('animated', 'slideInRight');
+      groupView.addEventListener('animationend', function() {
+        groupView.className = "";
+      });
     });
   };
   setupNav(verseNavTop, data['selectedVerseGroup'], prevFunc, nextFunc);
