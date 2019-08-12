@@ -222,10 +222,6 @@ function displayView(viewCode) {
   }
   const menuItem = document.querySelector("#" + viewName + "ViewMenuItem");
   addClassName(menuItem, "selected");
-  //hide footer when in search view
-  const isSearchView = viewCode === SEARCH_VIEW_INDEX;
-  verseNavTop.style.display = isSearchView ? 'none' : 'block';
-  verseNavBottom.style.display = isSearchView ? 'none' : 'block';
   renderView();
 }
 function displayVerseView() {
@@ -370,12 +366,20 @@ function displayReadNavBtns(partNum, verseGroupStr) {
   displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr);
 }
 function displayFavoritesView() {
+  //hide stuff
+  verseNavTop.style.display = 'none';
+  verseNavBottom.style.display = 'none';
+
   //TODO
   //favoritesView
   //show bookmarked
   //show favorites
 }
 function displaySearchView() {
+  //hide stuff
+  verseNavTop.style.display = 'none';
+  verseNavBottom.style.display = 'none';
+
   const searchStr = data['searchStr'];
   if (searchStr) {
     let count = 0;
