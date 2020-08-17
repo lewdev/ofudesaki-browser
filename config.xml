@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.lewisnakao.ofudesakibrowser" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="io.github.lewdev.ofudesakibrowser" version="1.0.0" 
+  android-versionCode="13" 
+  xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <preference name="android-minSdkVersion" value="17" />
   <name>Ofudesaki Browser</name>
   <description>
   The Ofudesaki Browser is an application that allows people to study the Tenrikyo Ofudesaki おふでさき (The Tip of the Writing Brush), using the "Browse" feature (allows users to view verses one at a time), "Read" feature (allows uses to view the standard verse groups), and "Search" feature (allows users to search perform a text search over the English transation, Romanized, Japanese, and Kanji verses).

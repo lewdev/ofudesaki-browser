@@ -1,3 +1,14 @@
+#config { margin-left: 1rem; }
+#main.content > div#verseView,
+#main.content > div#groupView,
+#main.content > div#favoritesView,
+#main.content > div#searchView {
+  margin-bottom: 7rem;
+}
+#groupOptionsRow, #verseOptionsRow {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
 /* #verseView, #groupView, #searchView {
   animation-duration: 300ms;
 } */
@@ -10,7 +21,6 @@
   margin-right: .4em;
 }
 #layout.active #menu {
-  padding-top: .5em;
   top: 4em;
 }
 .btn {
@@ -24,9 +34,21 @@
   margin-left: 0;
 }
 .btn.circle {
-  padding: 0.3em .5em;
-  border-radius: 2em;
+  padding: .1em .3em;
+  border-radius: 1.5em;
   background-color: #CCC;
+  border: 3px solid transparent;
+  transition: background-color 1s ease;
+}
+button.btn.circle.favorited {
+  background-color: yellow;
+  transition: background-color 1s ease;
+}
+button.btn.circle:hover {
+  border: 3px solid #2caaff;
+}
+button.btn.circle:hover, button.btn.circle {
+  transition: all 1s ease;
 }
 .analysis-menu > div > button {
   width: 100%;
@@ -42,6 +64,9 @@
 }
 .of-verse-controls > tbody > tr > td:first-child {
   text-align: left;
+}
+.search-view .pure-button {
+  height: 3rem;
 }
 .footer > .search-view {
   color: black;
@@ -66,7 +91,7 @@
   width: 100%;
 }
 .of-bottom-menu > ul > li > a {
-  padding: .2em .5em;
+  padding: .4em .5em .2em .5em;
   text-align: center;
   width: 100%;
   min-width: 80px;
@@ -80,7 +105,11 @@
 }
 .of-bottom-menu > ul > li > a.selected {
   background-color: #333;
-  color: white;
+  color: #CCC;
+  transition: all 1s ease;
+}
+.of-bottom-menu > ul > li > a:hover, .of-bottom-menu > ul > li > a {
+  transition: all .3s ease;
 }
 .of-bottom-menu > ul > li > a > i {
   display: block;
@@ -183,8 +212,10 @@ a:hover {
  * Most of these are inherited from Base, but I want to change a few.
  */
 body {
+  overflow-x: hidden;
   line-height: 1.7em;
   font-size: 16px;
+  min-height: 100%;
 }
 
 h1,h2,h3,h4,h5,h6,label {
@@ -247,8 +278,8 @@ h1,h2,h3,h4,h5,h6,label {
   text-align: center;
   text-decoration: none;
   position: absolute;
-  top: 5%;
-  right: 5%;
+  top: 0;
+  right: 0;
 }
 .modal-close:hover {
   text-decoration: none;
@@ -271,7 +302,8 @@ h1,h2,h3,h4,h5,h6,label {
 }
 #layout.active #menu {
   left: 200px;
-  width: 200px;
+  width: 190px;
+  margin-left: 1rem;
 }
 
 
@@ -295,9 +327,11 @@ h1,h2,h3,h4,h5,h6,label {
 .content {
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 160px;
   padding-left: 1em;
   padding-right: 1em;
   max-width: 768px;
+  height: 80vh;
 }
 
   .content .content-subhead {
@@ -403,6 +437,8 @@ code {
 #menu {
   margin-left: -190px; /* "#menu" width */
   width: 200px;
+  padding-top: 1em;
+  padding-right: 1em;
   position: fixed;
   top: 4.5em;
   left: 0;
@@ -747,7 +783,7 @@ a.pure-button-primary {
     left: 0;
   }
   #menu {
-    left: 200px;
+    left: 190px;
   }
   .menu-link {
     position: fixed;
@@ -867,6 +903,11 @@ a.pure-button-primary {
 @media (max-width: 38em) {
   #verseView blockquote {
     margin-left: 1em;
+  }
+}
+@media (max-width: 780px) {
+  #layout.active #menu {
+    left: 0;
   }
 }
 @media (min-width: 800px) {
