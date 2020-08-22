@@ -20,6 +20,9 @@
     <copy todir="./public"> <!-- overwrite="true" -->
       <fileset dir="./src" excludes="**/*.html,**/style.css,**/*.js"/>
     </copy>
+    <copy todir="./public"> <!-- overwrite="true" -->
+      <fileset dir="./src" includes="service-worker.js"/>
+    </copy>
   </target>
 
   <target name="compile" depends="init, compile-index, compile-analysis"/>
@@ -61,6 +64,14 @@
       <arg line="--js ./src/analysis.js"/>
       <arg line="--js_output_file ./public/analysis.js"/>
     </exec>
+  </target>
+
+  <target name="github" depends="build-clean">
+    <delete dir="../lewdev.github.io/${ant.project.name}"/>
+    <mkdir dir="../lewdev.github.io/${ant.project.name}" />
+    <copy todir="../lewdev.github.io/${ant.project.name}">
+      <fileset dir="./public"/>
+    </copy>
   </target>
 
   <target name="phonegap" depends="build-clean">

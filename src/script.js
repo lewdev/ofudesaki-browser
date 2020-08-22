@@ -462,6 +462,12 @@ function displayFavoritesView() {
       favoritesDisplay.appendChild(elem);
     });
   }
+  else {
+    favoritesDisplay.innerHTML = '';
+  }
+  if (!bookmark && (!favorites || favorites.length === 0)) {
+    favoritesDisplay.innerHTML = "Bookmark and favorites have not been set.";
+  }
 }
 function displaySearchView() {
   //hide stuff

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 
   <title>Ofudesaki Browser</title>
@@ -142,8 +143,8 @@
     <h3>What?</h3>
     <p>
       The <strong>Ofudesaki Browser</strong> is an application that allows people to study the
-      <a href="http://en.tenrikyo-resource.com/wiki/Ofudesaki">Ofudesaki &#x304A;&#x3075;&#x3067;&#x3055;&#x304D;</a>
-      (<i>The Tip of the Writing Brush</i>), using the
+      <i>Ofudesaki &#x304A;&#x3075;&#x3067;&#x3055;&#x304D;</i>
+      (<i>The Tip of the Writing Brush</i>), using the:
       <ul>
         <li>"Browse" feature (allows users to view verses one at a time), </li>
         <li>"Read" feature (allows uses to view the standard verse groups), and</li>
@@ -177,4 +178,13 @@
 </div>
 
 <script src="script.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('Service worker for offline access registered! 😎'))//console.log(reg);
+      .catch(err => console.log('😥 Service worker registration failed!', err));
+  });
+}
+</script>
 </body></html>
