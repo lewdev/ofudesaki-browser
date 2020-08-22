@@ -1,3 +1,24 @@
+.options-panel > div > div {
+  text-align: center;
+}
+.options-panel > div > div > label {
+  text-align: left;
+}
+.options-panel > div {
+  vertical-align: middle;
+}
+.options-panel > div > label, .options-panel > div > input[type="checkbox"] {
+  padding-top: .5rem;
+  padding-bottom: .5rem;
+}
+#menu label {
+  padding-left: .5rem;
+  display:block;
+}
+select, input[type="checkbox"] {
+  border-radius: .15em;
+  border: 1px solid #ccc;
+}
 #config { margin-left: 1rem; }
 #main.content > div#verseView,
 #main.content > div#groupView,
@@ -22,6 +43,9 @@
 }
 #layout.active #menu {
   top: 4em;
+  -moz-box-shadow: 5px 5px 15px 0px #999;
+  -webkit-box-shadow: 5px 5px 15px 0px #999;
+  box-shadow: 5px 5px 15px 0px #999;
 }
 .btn {
   background-color: transparent;
@@ -99,6 +123,7 @@ button.btn.circle:hover, button.btn.circle {
   text-decoration: none;
   white-space: nowrap;
   transition: none;
+  border-radius: 1rem;
 }
 .of-bottom-menu > ul > li > a:hover {
   background-color: none;
@@ -121,13 +146,12 @@ button.btn.circle:hover, button.btn.circle {
   input[type="radio"], input[type=checkbox] { zoom: 2; }
   select { zoom: 2; }
 }
-input[type="radio"],  input[type=checkbox] {
+/* input[type="radio"],  input[type=checkbox] {
   width: 1.5em;
-}
+} */
 @supports not (zoom:2) {
   input[type="radio"],  input[type=checkbox] {
     transform: scale(2);
-    margin: 15px;
   }
   select { transform: scale(2); }
 }
@@ -303,7 +327,12 @@ h1,h2,h3,h4,h5,h6,label {
 #layout.active #menu {
   left: 200px;
   width: 190px;
-  margin-left: 1rem;
+  margin-left: .1rem;
+  -webkit-transition: all 0.4s;
+  -moz-transition: all 0.4s;
+   -ms-transition: all 0.4s;
+    -o-transition: all 0.4s;
+       transition: all 0.4s;
 }
 
 
@@ -437,8 +466,7 @@ code {
 #menu {
   margin-left: -190px; /* "#menu" width */
   width: 200px;
-  padding-top: 1em;
-  padding-right: 1em;
+  padding: 1rem 1rem .5rem .5rem;
   position: fixed;
   top: 4.5em;
   left: 0;
@@ -470,13 +498,6 @@ code {
   #menu .pure-menu .menu-item-divided {
       border-top: 1px solid #333;
   }
-
-/*
-      #menu .pure-menu li a:hover,
-      #menu .pure-menu li a:focus {
-      }
-*/
-
   .menu-link {
       position: fixed;
       display: block; /* show this only on small screens */
@@ -489,12 +510,6 @@ code {
       height: 4.5em;
       padding: 1.25em;
   }
-/*
-      .menu-link:hover,
-      .menu-link:focus {
-          background: #000;
-      }
-*/
       .menu-link span {
         position: relative;
         display: block;
@@ -887,7 +902,7 @@ a.pure-button-primary {
   bottom: 0;
   width: 100%;
   color: white;
-  padding: .5em 1em;
+  padding: .2em 1em;
   font-size: 125%;
   z-index: 10;
 }
