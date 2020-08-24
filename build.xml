@@ -20,7 +20,7 @@
     <copy todir="./public"> <!-- overwrite="true" -->
       <fileset dir="./src" excludes="**/*.html,**/style.css,**/*.js"/>
     </copy>
-    <copy todir="./public"> <!-- overwrite="true" -->
+    <copy todir="./public">
       <fileset dir="./src" includes="service-worker.js"/>
     </copy>
   </target>

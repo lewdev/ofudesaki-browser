@@ -97,8 +97,8 @@ function myParseInt(str) {
   return parseInt(str, 10);
 }
 function initUi() {
-  const modalWin = document.querySelector('.modal-window');
-  if (modalWin) modalWin.onclick = () => { window.location = "#"; };
+  //const modalWin = document.querySelector('.modal-window');
+  //if (modalWin) modalWin.onclick = () => { window.location = "#"; };
   partSelect.onchange = function(e) {
     selectPart(myParseInt(partSelect.value));
     selectVerse(1);
@@ -214,7 +214,7 @@ function displayView(viewCode) {
     }
     const menuItem = document.getElementById(viewName + "ViewMenuItem");
     if (!menuItem) {
-      console.log(viewName + "ViewMenuItem not found.");
+      console.error("ERROR: " + viewName + "ViewMenuItem not found.");
     }
     removeClassName(menuItem, "selected");
   });
@@ -233,6 +233,9 @@ function displayView(viewCode) {
   renderView();
 }
 function displayVerseView() {
+  // display nav controls
+  verseNavTop.style.display = '';
+  verseNavBottom.style.display = '';
   const partNum = data['selectedPart'];
   const verseNum = data['selectedVerse'];
   selectedVerse = getByPartAndVerse(partNum, verseNum);
@@ -249,6 +252,7 @@ function displayVerseView() {
 }
 function applyVerseControls(verseDisplay, selectedVerse) {
   if (!verseDisplay || !selectedVerse) {
+    console.error("Verse element is invalid or selected verse was invalid.");
     return;
   }
   const verseBtn = verseDisplay.querySelector(".verse-btn");
@@ -257,9 +261,10 @@ function applyVerseControls(verseDisplay, selectedVerse) {
   const bookmarkBtn = verseDisplay.querySelector(".bookmark-btn");
   const part = selectedVerse['part'];
   const verse = selectedVerse['verse'];
-  const partVerse = `${part}:${verse}`;
+  if (!part || !verse) return;
+  const partVerse = part + ":" + verse;
   if (verseBtn) {
-    verseBtn.onclick = function() {
+    verseBtn.onclick = () => {
       selectPart(part);
       selectVerse(verse);
       displayView(VERSE_VIEW_INDEX);
@@ -267,20 +272,20 @@ function applyVerseControls(verseDisplay, selectedVerse) {
   }
   if (readBtn) {
     const verseGroup = getVerseGroupByPartVerse(part, verse);
-    readBtn.onclick = function() {
+    readBtn.onclick = () => {
       selectVerseGroup(verseGroup);
       displayView(READ_VIEW_INDEX);
       window.location.hash = "verse" + part + "-" + verse;
     };
   }
   const favorites = favoritesData['favorites'];
-  if (favorites.includes(partVerse)) {
-    favoriteBtn.classList.add('favorited');
-    favoriteBtn.title = "Remove from Favorites";
-  }
-  else {
-    favoriteBtn.title = "Add to Favorites";
-  }
+  const isFavorited = favorites.indexOf(partVerse) > -1;
+  if (isFavorited) favoriteBtn.classList.add('favorited');
+  favoriteBtn.title = (isFavorited ? "Remove from " : "Add to") + " Favorites";
+  favoriteBtn.addEventListener('animationend', () => {
+    favoriteBtn.classList.remove('animated', 'shake', 'tada');
+    renderView();
+  });
   if (partVerse === favoritesData['bookmark']) {
     bookmarkBtn.classList.add('favorited');
     bookmarkBtn.title = "Remove Bookmark";
@@ -288,61 +293,87 @@ function applyVerseControls(verseDisplay, selectedVerse) {
   else {
     bookmarkBtn.title = "Bookmark";
   }
-  favoriteBtn.addEventListener('animationend', () => {
-    favoriteBtn.classList.remove('animated', 'pulse', 'tada');
-    renderView();
-  });
   bookmarkBtn.addEventListener('animationend', () => {
     bookmarkBtn.classList.remove('animated', 'pulse', 'tada');
     renderView();
   });
   favoriteBtn.onclick = function() {
     const favorites = favoritesData['favorites'];
-    if (favorites.includes(partVerse)) {
-      const favIndex = favoritesData['favorites'].indexOf(partVerse);
-      favoritesData['favorites'].splice(favIndex, 1);
+    if (favorites.indexOf(partVerse) > -1) {
+      const favIndex = favorites.indexOf(partVerse);
+      favorites.splice(favIndex, 1);
       favoriteBtn.classList.remove('favorited');
-      favoriteBtn.classList.add('animated', 'pulse');
+      if (data['view'] === FAVORITES_VIEW_INDEX) {
+        animateElem(favoriteBtn.parentNode.parentNode.parentNode.parentNode.parentNode,
+          'slideOutRight', () => {saveFavData(); renderView();});
+      }
+      else {
+        favoriteBtn.classList.add('animated', 'shake');
+        saveFavData();
+      }
     }
     else {
-      favoritesData['favorites'].push(partVerse);
-      favoritesData['favorites'].sort(verseSort);
+      if (partVerse.startsWith("undefined")) {
+        console.error("Tried to save an invalid verse.")
+        return;
+      }
+      favorites.push(partVerse);
+      favorites.sort(verseSort);
       favoriteBtn.classList.add('favorited', 'animated', 'tada');
+      saveFavData();
     };
-    saveFavData();
   };
   bookmarkBtn.onclick = function() {
     if (favoritesData["bookmark"] === partVerse) {
       favoritesData['bookmark'] = false;
       bookmarkBtn.classList.remove('favorited');
-      bookmarkBtn.classList.add('animated', 'pulse');
+      if (data['view'] === FAVORITES_VIEW_INDEX) {
+        animateElem(bookmarkBtn.parentNode.parentNode.parentNode.parentNode.parentNode,
+          'slideOutRight', () => {saveFavData(); renderView();});
+      }
+      else {
+        bookmarkBtn.classList.add('animated', 'shake');
+        saveFavData();
+      }
     }
     else if (favoritesData["bookmark"] !== partVerse) {
       favoritesData['bookmark'] = partVerse;
       bookmarkBtn.classList.add('favorited', 'animated', 'tada');
+      saveFavData();
     }
-    saveFavData();
-  };
+  }
 }
-const parsePartVerseStr = partVerse => {
+function animateElem(elem, animation, callback) {
+  if (!elem) return;
+  elem.classList.add("animated", animation);
+  elem.addEventListener('animationend', function() {
+    elem.classList.remove("animated", animation);
+    if (callback) callback();
+  });
+}
+function parsePartVerseStr(partVerse) {
   if (partVerse && partVerse.indexOf(":") > -1) {
     const arr = partVerse.split(":");
-    return { part: myParseInt(arr[0]), verse: myParseInt(arr[1]) };
+    const part = myParseInt(arr[0]);
+    const verse = myParseInt(arr[1]);
+    if (part && verse) return { "part": part, "verse": verse };
   }
   return null;
-};
-const verseSort = (a, b) => {
+}
+function verseSort(a, b) {
   const partVerseA = parsePartVerseStr(a);
   const partVerseB = parsePartVerseStr(b);
-  if (partVerseA.part < partVerseB.part) return -1;
-  else if (partVerseA.part > partVerseB.part) return 1;
-  if (partVerseA.verse < b.verse) return -1;
-  else if (partVerseA.verse > partVerseB.verse) return 1;
+  if (!partVerseA && partVerseB) return -1;
+  if (partVerseA && !partVerseB) return 1;
+  if (partVerseA['part'] < partVerseB['part']) return -1;
+  else if (partVerseA['part'] > partVerseB['part']) return 1;
+  if (partVerseA['verse'] < b['verse']) return -1;
+  else if (partVerseA['verse'] > partVerseB['verse']) return 1;
   return 0;
-};
+}
 function getVerseGroupByPartVerse(part, verse) {
   if (!part || !verse) {
-    console.log("ERROR: getVerseGroupByPartVerse parameters (part, verse) are not valid.")
+    console.error("ERROR: getVerseGroupByPartVerse parameters (part, verse) are not valid.")
     return;
   }
   const groups = ofData['verseGroups'][part - 1]['groups'];
@@ -357,7 +388,7 @@ function getVerseGroupByPartVerse(part, verse) {
       }
     }
   }
-  console.log("ERROR: getVerseGroupByPartVerse parameters (" + part + ", " + verse + ") not found.")
+  console.error("ERROR: getVerseGroupByPartVerse parameters (" + part + ", " + verse + ") not found.")
   return null;
 }
 function parseVerseGroup(partVerseGroupStr) {
@@ -444,7 +475,7 @@ function displayFavoritesView() {
   if (bookmark) {
     //display book mark
     const bookmarkPartVerse = parsePartVerseStr(favoritesData['bookmark']);
-    const partVerse = getByPartAndVerse(bookmarkPartVerse.part, bookmarkPartVerse.verse);
+    const partVerse = getByPartAndVerse(bookmarkPartVerse['part'], bookmarkPartVerse['verse']);
     bookmarkDisplay.innerHTML = '<h3>Bookmark</h3>' + displayVerseByViewStr(partVerse, 'favorites', '');
     applyVerseControls(bookmarkDisplay, bookmarkPartVerse);
   }
@@ -455,11 +486,13 @@ function displayFavoritesView() {
     favoritesDisplay.innerHTML = '<h3 style="border-bottom: 1px solid gray;">Favorites</h3>';
     favorites.map(a => {
       const favPartVerse = parsePartVerseStr(a);
-      const partVerse = getByPartAndVerse(favPartVerse.part, favPartVerse.verse);
-      const elem = document.createElement("div");
-      elem.innerHTML = displayVerseByViewStr(partVerse, 'favorites', '');
-      applyVerseControls(elem, favPartVerse);
-      favoritesDisplay.appendChild(elem);
+      if (favPartVerse) {
+        const partVerse = getByPartAndVerse(favPartVerse['part'], favPartVerse['verse']);
+        const elem = document.createElement("div");
+        elem.innerHTML = displayVerseByViewStr(partVerse, 'favorites', '');
+        applyVerseControls(elem, favPartVerse);
+        favoritesDisplay.appendChild(elem);
+      }
     });
   }
   else {
@@ -512,10 +545,10 @@ function displaySearchView() {
 }
 function displayVerseGroupSelect() {
   let options = [];
-  ofData['verseGroups'].map(verseGroup => {
+  ofData['verseGroups'].map(function(verseGroup) {
     const part = verseGroup['part'];
     options.push('<option value="" disabled="true">- Part ' + part + ' -</option>');
-    verseGroup['groups'].map(group => {
+    verseGroup['groups'].map(function(group) {
       const partVerseGroup = part + ":" + group;
       options.push('<option value="' + partVerseGroup + '">' + partVerseGroup + '</option>');
     });
@@ -551,8 +584,8 @@ function displayVerseGroupNavBtns(prevVerseGroupStr, nextVerseGroupStr) {
   setupNav(verseNavBottom, data['selectedVerseGroup'], prevFunc, nextFunc);
 }
 function displayVerseNavBtns(verseStr) {
-  const prevVerse = getById(selectedVerse.id - 1);
-  const nextVerse = getById(selectedVerse.id + 1);
+  const prevVerse = getById(selectedVerse['id'] - 1);
+  const nextVerse = getById(selectedVerse['id'] + 1);
   const prevFunc = function() {
     selectPart(prevVerse['part']);
     selectVerse(prevVerse['verse']);
@@ -595,16 +628,16 @@ function displayVerseByViewStr(verse, viewName, highlight) {
       + (data[viewName + 'Options']['showKanji'] ? "<blockquote>" + kanji + "</blockquote>" : '')
       + '<table class="of-verse-controls"><tbody><tr>'
       + '<td>'
-      + '<button class="favorite-btn btn circle"><i class="fa fa-fw fa-star"></i></button>'
-      + '<button class="bookmark-btn btn circle"><i class="fa fa-fw fa-bookmark"></i></button>'
+      + '<button class="favorite-btn btn circle" aria-label="Save verse to Favorites"><i class="fa fa-fw fa-star"></i></button>'
+      + '<button class="bookmark-btn btn circle" aria-label="Bookmark verse in Favorites"><i class="fa fa-fw fa-bookmark"></i></button>'
       + '</td>'
       + '<td>'
       + (verse['in_life_of_oyasama']  ? '<span class="of-tag">Life of Oyasama</span>' : '')
       +  (verse['in_doctrine']  ? '<span class="of-tag">Doctrine</span>' : '')
       + "</td><td>" + verseStr + '</td>'
       + '<td>'
-      + (viewName !== 'group' ? '<button class="read-btn btn circle" title="View in Read"><i class="fab fa-fw fa-readme"></i></button>' : "")
-      + (viewName !== 'verse' ? '<button class="verse-btn btn circle" title="View in Browse"><i class="fa fa-fw fa-eye"></i></button>' : "")
+      + (viewName !== 'group' ? '<button class="read-btn btn circle" aria-label="View verse in Read" title="View verse in Read"><i class="fab fa-fw fa-readme"></i></button>' : "")
+      + (viewName !== 'verse' ? '<button class="verse-btn btn circle" aria-label="View verse in Browse" title="View verse in Browse"><i class="fa fa-fw fa-eye"></i></button>' : "")
       + '</td>'
       + '</tr></tbody></table>'
       + "</div>"
@@ -621,7 +654,7 @@ function highlightText(str, search) {
   return str.replace(re, highlight);
 }
 function initViewOptions() {
-  VIEWS.map(viewName => {
+  VIEWS.map(function(viewName) {
     //create show toggle tables
     const optionsDiv = verseOptionTemplate.cloneNode(true);
     const inputs = optionsDiv.querySelectorAll("input");
@@ -671,7 +704,7 @@ function displayPartSelect() {
 }
 function displayVerseSelect(part) {
   let options = [];
-  ofData['verses'].map(verse => {
+  ofData['verses'].map(function(verse) {
     if (verse['part'] === myParseInt(part)) {
       const verseNum = verse['verse'];
       const selected = data['selectedVerse'] === verseNum ? ' selected="selected"' : '';
@@ -702,11 +735,11 @@ window.onload = function() {
     initViewOptions();
     data['isDataLoaded'] = true;
   })
-  .catch(function (error) { console.log('Something went wrong.', error); });
+  .catch(function (error) { console.error('Something went wrong.', error); });
 };
-window.onunload = function() {
-  saveData();
-};
+// window.onunload = function() {
+  //saveData();
+// };
 /*
 window.addEventListener("beforeunload", function (e) { saveData(); });
 window.addEventListener("unload", function (e) { saveData(); });
@@ -745,12 +778,12 @@ function saveData() {
     saveFavData();
   }
 }
-const saveConfigData = () => {
+function saveConfigData() {
   window.localStorage.setItem(APP_DATA_KEY, JSON.stringify(data));
-};
-const saveFavData = () => {
+}
+function saveFavData() {
   window.localStorage.setItem(FAV_DATA_KEY, JSON.stringify(favoritesData));
-};
+}
 function correctData() {
   if (!data['favoritesOptions']) {
     data['favoritesOptions'] = {

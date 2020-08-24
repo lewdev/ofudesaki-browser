@@ -1,3 +1,16 @@
+/* ------------------------------------- */
+/* Banner for installing offline version */
+.banner {
+  align-content: center;
+  width: 6rem;
+  display: none;
+  z-index: 5;
+  position: fixed;
+  top: 1rem;
+  right: 0;
+  text-align: right;
+}
+/* ------------------------------------- */
 .options-panel > div > div {
   text-align: center;
 }
@@ -202,14 +215,19 @@ button.btn.circle:hover, button.btn.circle {
 .pad-right-1em {
   padding-right: 1em;
 }
+.nav-btn {
+  background: none;
+  color: #2caaff;
+  transition: all 1s ease;
+  border: 0;
+}
 a {
   text-decoration: none;
   color: #2caaff;
   transition: all 1s ease;
 }
-a:hover {
+a:hover, button.nav-btn:hover  {
   text-decoration: none;
-  text-decoration: underline;
   color: #2d3e50;
   /*-webkit-stroke-width: .3em;*/
   -webkit-stroke-color: #FFFFFF;

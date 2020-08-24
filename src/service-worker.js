@@ -1,4 +1,6 @@
-const cacheName = 'cache-v1';
+const APP_PREFIX = "ofudesaki-browser-";
+const VERSION = 'v2';
+const CACHE_NAME = APP_PREFIX + VERSION;
 const precacheResources = [
   'index.html',
   'style.css',
@@ -41,26 +43,37 @@ const precacheResources = [
 ];
 
 self.addEventListener('install', event => {
-  console.log('Service worker install event!');
+  console.log('Service worker installing cache: ' + CACHE_NAME);
   event.waitUntil(
-    caches.open(cacheName)
-      .then(cache => {
-        return cache.addAll(precacheResources);
-      })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(precacheResources))
   );
 });
 
 self.addEventListener('activate', event => {
   console.log('Service worker activate event!');
+  //delete old caches
+  event.waitUntil(
+    caches.keys().then(keyList => {
+      // `keyList` contains all cache names under your username.github.io
+      // filter out ones that has this app prefix to create white list
+      const cacheWhitelist = keyList.filter(key => key.indexOf(APP_PREFIX))
+      // add current cache name to white list
+      cacheWhitelist.push(CACHE_NAME)
+      return Promise.all(keyList.map(function (key, i) {
+        if (cacheWhitelist.indexOf(key) === -1) {
+          console.log('Deleting cache : ' + keyList[i]);
+          return caches.delete(keyList[i]);
+        }
+      }));
+    })
+  );
 });
 
 self.addEventListener('fetch', event => {
   console.log('Fetch intercepted for:', event.request.url);
   event.respondWith(caches.match(event.request)
     .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
+        if (cachedResponse) return cachedResponse;
         return fetch(event.request);
       })
     );
